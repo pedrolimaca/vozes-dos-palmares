@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Agenda · Vozes dos Palmares</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600&family=Instrument+Serif:ital@0;1&display=swap">
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="js/config.js"></script><script src="js/app.js"></script></head>
+<body><div id="top"></div><main>
+<div class="wrap"><div class="page-title"><h1>Agenda cultural</h1><p class="lead">Rodas de leitura, oficinas e encontros do centro. Escolha um mês para ver também os eventos que já aconteceram.</p></div>
+<div class="filters"><select id="m" aria-label="Filtrar por mês"></select></div><section id="e"></section></div>
+</main><div id="foot"></div>
+<script>
+(async()=>{await layout("agenda.html");
+const {data,error}=await sb.from("eventos").select("*").order("data_hora");
+const el=$("#e");
+if(error){el.innerHTML=`<p class="msg err">Erro ao carregar: ${esc(error.message)}</p>`;return}
+$("#m").innerHTML=mesesOpcoes(data.map(e=>e.data_hora),'<option value="proximos">Próximos eventos</option><option value="todos">Todos os eventos</option>',true);
+function draw(){const v=$("#m").value,lim=Date.now()-36e5;
+ const r=data.filter(e=>v==="todos"||(v==="proximos"?new Date(e.data_hora)>=lim:mesChave(e.data_hora)===v));
+ el.innerHTML=r.length?r.map(eventCard).join(""):`<p class="msg">Nenhum evento ${v==="proximos"?"programado no momento. Volte em breve.":"neste período."}</p>`;}
+$("#m").onchange=draw;draw();})();
+</script></body></html>

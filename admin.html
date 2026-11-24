@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Painel · Vozes dos Palmares</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600&family=Instrument+Serif:ital@0;1&display=swap">
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="js/config.js"></script><script src="js/app.js"></script></head>
+<body><div id="top"></div><main>
+<div class="wrap"><div class="page-title"><h1>Painel de gestão</h1><p class="lead">Adicione e remova livros, eventos e fotos do espaço.</p></div><div id="m" class="msg" hidden role="status"></div>
+<section><h2>Livros</h2><form class="box" id="fl"><label for="t1">Título</label><input id="t1" required><label for="a1">Autor</label><input id="a1" required>
+<div class="pair"><div><label for="te">Tema</label><select id="te"></select></div><div><label for="an">Ano</label><input id="an" type="number" min="1000" max="2100"></div></div>
+<div class="pair"><div><label for="ed">Editora</label><input id="ed"></div><div><label for="lc">Onde fica (estante)</label><input id="lc"></div></div>
+<label for="cv">Capa (imagem, opcional)</label><input id="cv" type="file" accept="image/*">
+<label for="d1">Descrição breve</label><textarea id="d1" rows="2"></textarea>
+<label for="d3">Sobre a obra</label><textarea id="d3" rows="3"></textarea>
+<label for="sa">Sobre o autor</label><textarea id="sa" rows="2"></textarea>
+<label class="chk"><input id="dp" type="checkbox" checked> Disponível para empréstimo</label>
+<p><button class="btn">Adicionar livro</button></p></form><div id="ll"></div></section>
+<section><h2>Eventos</h2><form class="box" id="fe"><label for="t2">Título</label><input id="t2" required><label for="dt">Data e hora</label><input id="dt" type="datetime-local" required><label for="lo">Local (opcional)</label><input id="lo"><label for="d2">Descrição (opcional)</label><textarea id="d2" rows="2"></textarea><p><button class="btn">Adicionar evento</button></p></form><div id="le"></div></section>
+<section><h2>Fotos</h2><form class="box" id="ff"><label for="ar">Imagem</label><input id="ar" type="file" accept="image/*" required><label for="cp">Título / legenda (opcional)</label><input id="cp"><label for="dd">Data da foto (opcional)</label><input id="dd" type="date"><label for="dc">Descrição do dia (aparece ao passar o mouse)</label><textarea id="dc" rows="2"></textarea><p><button class="btn">Enviar foto</button></p></form><div id="lf"></div></section>
+<section><h2>Atividades do centro</h2><p class="lead">Aparecem na página "O Centro". A ordem define a posição (1 aparece primeiro).</p><form class="box" id="fa"><label for="at1">Atividade</label><input id="at1" required maxlength="120"><label for="ad">Descrição (opcional)</label><textarea id="ad" rows="2" maxlength="600"></textarea><label for="ao">Ordem</label><input id="ao" type="number" min="0" value="10"><p><button class="btn">Adicionar atividade</button></p></form><div id="la"></div></section>
+<section><h2>Relatos</h2><p class="lead">Relatos publicados na página do centro. Exclua o que for ofensivo ou inadequado.</p><div id="lr"></div></section>
+<section data-admin><h2>Mensagens</h2><div id="lm"></div></section>
+<section data-admin><h2>Usuários e permissões</h2><p class="lead">Usuário: pode publicar relatos. Editor: gerencia livros, eventos, fotos e relatos. Administrador: tudo, inclusive usuários e mensagens. Quem é bloqueado não consegue publicar relatos.</p><div id="lu"></div></section></div>
+</main><div id="foot"></div>
+<script>
+(async()=>{const {user,admin,staff}=await layout("admin.html");
+if(!staff){document.querySelector("main").innerHTML=`<div class="wrap"><div class="page-title"><h1>Painel</h1></div><p class="msg err">Acesso restrito à equipe do centro. ${user?"Sua conta não tem permissão de edição. Peça a um administrador do site.":'<a href="login.html">Entre na sua conta</a>.'}</p></div>`;return;}
+if(!admin)document.querySelectorAll("[data-admin]").forEach(x=>x.remove());
+$("#te").innerHTML=TEMAS.map(t=>`<option>${t}</option>`).join("");
+const msg=(t,e)=>{$("#m").hidden=false;$("#m").textContent=t;$("#m").className="msg"+(e?" err":"");scrollTo({top:0});};
+const row=(tab,id,txt)=>`<div class="row"><span>${txt}</span><button class="btn danger" data-t="${tab}" data-id="${id}">Excluir</button></div>`;
+async function usuarios(){
+ const {data,error}=await sb.from("profiles").select("*").order("created_at",{ascending:false}),el=$("#lu");
+ if(error){el.innerHTML=`<p class="msg err">${esc(error.message)}</p>`;return}
+ const op=(u,v,t)=>`<option value="${v}"${u.role===v?" selected":""}>${t}</option>`;
+ el.innerHTML=data.map(u=>{const eu=u.id===user.id;return `<div class="row"><span><strong>${esc(u.nome||"Sem nome")}</strong> · ${esc(u.email||"")}${u.bloqueado?" · <em>bloqueado</em>":""}${eu?" · você":""}</span><span class="acts"><select data-u="${esc(u.id)}" aria-label="Permissão" ${eu?"disabled":""}>${op(u,"user","Usuário")}${op(u,"editor","Editor")}${op(u,"admin","Administrador")}</select><button class="btn danger" data-bl="${esc(u.id)}" data-v="${u.bloqueado?0:1}" ${eu?"disabled":""}>${u.bloqueado?"Desbloquear":"Bloquear"}</button></span></div>`}).join("");}
+document.addEventListener("change",async e=>{const s=e.target.closest("[data-u]");if(!s)return;
+ const {error}=await sb.from("profiles").update({role:s.value}).eq("id",s.dataset.u);error?msg("Erro: "+error.message,1):msg("Permissão atualizada.");usuarios();});
+document.addEventListener("click",async e=>{const b=e.target.closest("[data-bl]");if(!b)return;
+ const {error}=await sb.from("profiles").update({bloqueado:b.dataset.v==="1"}).eq("id",b.dataset.bl);error?msg("Erro: "+error.message,1):msg("Usuário atualizado.");usuarios();});
+async function load(){
+ show($("#la"),sb.from("atividades").select("*").order("ordem"),a=>row("atividades",a.id,`<strong>${esc(a.titulo)}</strong> · ordem ${esc(a.ordem)}`),"Nenhuma atividade.");
+ show($("#lr"),sb.from("relatos").select("*").order("created_at",{ascending:false}).limit(50),r=>row("relatos",r.id,`<span><strong>${esc(r.nome)}</strong> · ${esc(fmt(r.created_at))}<br>${esc(r.texto)}</span>`),"Nenhum relato.");
+ if(admin){show($("#lm"),sb.from("mensagens").select("*").order("created_at",{ascending:false}),m=>row("mensagens",m.id,`<span><strong>${esc(m.nome)}</strong> · ${esc(m.email)} · ${esc(fmt(m.created_at))}<br>${esc(m.mensagem)}</span>`),"Nenhuma mensagem.");usuarios();}
+ show($("#ll"),sb.from("livros").select("*").order("created_at",{ascending:false}),b=>row("livros",b.id,`${b.capa?`<img src="${esc(b.capa)}" alt="" width="32" style="vertical-align:middle"> `:""}<strong>${esc(b.titulo)}</strong> · ${esc(b.autor)}`),"Nenhum livro.");
+ show($("#le"),sb.from("eventos").select("*").order("data_hora",{ascending:false}),e=>row("eventos",e.id,`<strong>${esc(e.titulo)}</strong> · ${esc(fmt(e.data_hora))}`),"Nenhum evento.");
+ show($("#lf"),sb.from("fotos").select("*").order("created_at",{ascending:false}),f=>row("fotos",f.id,`<img src="${esc(f.url)}" alt="" width="64" style="vertical-align:middle"> ${esc(f.legenda||"Sem legenda")}`),"Nenhuma foto.");}
+async function ins(tab,obj,form,ok){const {error}=await sb.from(tab).insert(obj);if(error)return msg("Erro: "+error.message,1);form.reset();msg(ok);load();}
+$("#fa").onsubmit=e=>{e.preventDefault();ins("atividades",{titulo:$("#at1").value,descricao:$("#ad").value||null,ordem:+($("#ao").value||0)},e.target,"Atividade adicionada.");};
+$("#fl").onsubmit=async e=>{e.preventDefault();let capa=null;const f=$("#cv").files[0];
+ if(f){if(f.size>5*1024*1024)return msg("A capa deve ter até 5 MB.",1);const path="capas/"+Date.now()+"-"+f.name.normalize("NFD").replace(/[^\w.\-]/g,"_");const up=await sb.storage.from("fotos").upload(path,f);if(up.error)return msg("Erro no envio da capa: "+up.error.message,1);capa=sb.storage.from("fotos").getPublicUrl(path).data.publicUrl;}
+ ins("livros",{titulo:$("#t1").value,autor:$("#a1").value,tema:$("#te").value,ano:$("#an").value?+$("#an").value:null,editora:$("#ed").value||null,localizacao:$("#lc").value||null,disponivel:$("#dp").checked,capa,descricao:$("#d1").value||null,detalhes:$("#d3").value||null,sobre_autor:$("#sa").value||null},e.target,"Livro adicionado.");};
+$("#fe").onsubmit=e=>{e.preventDefault();ins("eventos",{titulo:$("#t2").value,data_hora:new Date($("#dt").value).toISOString(),local:$("#lo").value||null,descricao:$("#d2").value||null},e.target,"Evento adicionado.");};
+$("#ff").onsubmit=async e=>{e.preventDefault();const file=$("#ar").files[0];if(file.size>5*1024*1024)return msg("A imagem deve ter até 5 MB.",1);
+ const path=Date.now()+"-"+file.name.normalize("NFD").replace(/[^\w.\-]/g,"_");
+ const up=await sb.storage.from("fotos").upload(path,file);if(up.error)return msg("Erro no envio: "+up.error.message,1);
+ const url=sb.storage.from("fotos").getPublicUrl(path).data.publicUrl;
+ ins("fotos",{url,path,legenda:$("#cp").value||null,data:$("#dd").value||null,descricao:$("#dc").value||null},e.target,"Foto enviada.");};
+document.addEventListener("click",async e=>{const b=e.target.closest("[data-id]");if(!b||!confirm("Excluir este item?"))return;
+ if(b.dataset.t==="fotos"){const {data}=await sb.from("fotos").select("path").eq("id",b.dataset.id).single();if(data?.path)await sb.storage.from("fotos").remove([data.path]);}
+ if(b.dataset.t==="livros"){const {data}=await sb.from("livros").select("capa").eq("id",b.dataset.id).single();const p=data&&data.capa&&data.capa.split("/fotos/")[1];if(p)await sb.storage.from("fotos").remove([decodeURIComponent(p)]);}
+ const {error}=await sb.from(b.dataset.t).delete().eq("id",b.dataset.id);error?msg("Erro: "+error.message,1):(msg("Item excluído."),load());});
+load();})();
+</script></body></html>

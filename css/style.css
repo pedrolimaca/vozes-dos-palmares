@@ -1,0 +1,171 @@
+:root{--bg:#0e0d0c;--text:#ece6da;--muted:#9b9386;--line:#2a2724;--acc:#e8552d;--surface:#171513;color-scheme:dark;box-sizing:border-box}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;overflow-x:hidden;background:var(--bg);color:var(--text);font:400 1.05rem/1.65 "Hanken Grotesk",system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column}
+main{flex:1;overflow-x:clip}main.flush{padding-top:0}
+h1,h2,h3,.brand{font-family:"Instrument Serif",Georgia,serif;font-weight:400;margin:0;line-height:1}
+a{color:inherit}:focus-visible{outline:2px solid var(--acc);outline-offset:3px}
+.wrap{max-width:70rem;margin:0 auto;padding:0 1.25rem}
+header{position:fixed;top:0;left:0;right:0;z-index:50;color:#fff;mix-blend-mode:difference;padding-top:env(safe-area-inset-top,0px)}
+nav{display:flex;flex-wrap:wrap;gap:.5rem 2rem;justify-content:space-between;align-items:center;padding:1.1rem 0}
+nav ul{display:flex;flex-wrap:wrap;gap:.2rem 1.5rem;list-style:none;margin:0;padding:0;font-size:.95rem}
+nav a,nav button.link{text-decoration:none;background:none;border:0;border-bottom:1px solid transparent;color:inherit;font:inherit;padding:.2rem 0;cursor:pointer}
+nav a:hover,nav a[aria-current],nav button.link:hover{border-color:currentColor}
+.brand{font-size:1.6rem;text-decoration:none;border:0!important}
+/* hero com rolagem: imagem cresce de uma máscara em arco até tela cheia */
+.hs{height:260vh;position:relative}
+.hs-pin{position:sticky;top:0;height:100vh;overflow:hidden}
+.hs-fig{position:absolute;inset:0;margin:0;background:radial-gradient(120% 90% at 30% 20%,#5a2a1b,#1a1210 60%);will-change:clip-path}
+.hs-fig img{width:100%;height:100%;object-fit:cover;object-position:50% 0;display:block;transform-origin:50% 50%;will-change:transform}
+.hs-fig::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.65),transparent 55%)}
+.hs-txt{position:absolute;left:0;right:0;bottom:7vh;z-index:2;will-change:transform,opacity}
+.hs-txt h1{font-size:clamp(3.2rem,11vw,9.5rem);letter-spacing:-.02em;max-width:9ch}
+.hs-txt p{max-width:30rem;margin:1.2rem 0 0;color:#d8d0c2}
+.hs-cue{position:absolute;right:1.5rem;bottom:2rem;z-index:2;font-size:.85rem;letter-spacing:.14em;text-transform:uppercase;color:#d8d0c2}
+/* seções */
+.sec{padding:5rem 0;border-top:1px solid var(--line)}
+.two{display:grid;grid-template-columns:12rem 1fr;gap:2rem}
+.lab{font-size:.85rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.lab span{color:var(--acc);margin-right:.6rem}
+.more{display:inline-block;margin-top:1.5rem;color:var(--acc)}
+.page-title{position:relative;isolation:isolate;padding:8rem 0 2.5rem;margin-bottom:1rem}.page-title::before{content:"";position:absolute;inset:0 -100vmax;z-index:-1;background:radial-gradient(120% 150% at 15% 0%,#5a2a1b,#140f0d 72%)}.page-title h1{font-size:clamp(3rem,8vw,6rem)}
+.lead{max-width:44rem;color:var(--muted)}
+section{padding:2rem 0}
+h2{font-size:clamp(2rem,4vw,3rem);margin-bottom:1rem}
+.btn{display:inline-block;background:var(--acc);color:#0e0d0c;font:600 .95rem "Hanken Grotesk",sans-serif;padding:.75rem 1.4rem;border:0;border-radius:2px;text-decoration:none;cursor:pointer}
+.btn.alt{background:none;color:var(--text);border:1px solid var(--text)}
+.btn.danger{background:none;color:var(--acc);border:1px solid var(--acc);padding:.3rem .8rem;font-size:.85rem}
+/* acervo como índice de catálogo */
+.grid{list-style:none;margin:1rem 0 0;padding:0;counter-reset:b;border-top:1px solid var(--line)}
+.card{counter-increment:b;display:grid;grid-template-columns:3rem 1fr 14rem 7rem;gap:1rem;align-items:baseline;padding:1rem 0;border-bottom:1px solid var(--line)}
+.card::before{content:counter(b,decimal-leading-zero);color:var(--muted);font-size:.85rem}
+.card strong{font:400 1.6rem "Instrument Serif",serif}
+.card p{margin:.2rem 0 0;color:var(--muted);font-size:.95rem}
+.card em{color:var(--acc);font-style:normal;font-size:.85rem;letter-spacing:.08em;text-transform:uppercase}
+.tag{display:inline-block;border:1px solid var(--line);padding:.1rem .7rem;font-size:.8rem;margin:.2rem .2rem 0 0;color:var(--muted)}
+/* agenda */
+.ev{display:grid;grid-template-columns:9rem 1fr;gap:1.5rem;padding:1.4rem 0;border-bottom:1px solid var(--line)}
+.ev:first-child{border-top:1px solid var(--line)}
+.ev b{font:400 4rem "Instrument Serif",serif;line-height:.9;display:block;color:var(--acc)}
+.ev small{color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-size:.75rem}
+.ev p{margin:0}.ev strong{font:400 1.7rem "Instrument Serif",serif}
+/* coverflow (porte do componente Originkit) */
+.cf{perspective:1600px;overflow:hidden;padding:2rem 0 1rem;outline:none}
+.cf-stage{position:relative;margin:0 auto;transform-style:preserve-3d}
+.cf-card{position:absolute;left:50%;top:50%;width:100%;height:100%;border-radius:30px;overflow:hidden;transform-style:preserve-3d;background:#1a1a1a;cursor:pointer;transition:transform .6s cubic-bezier(.22,1,.36,1),opacity .6s cubic-bezier(.22,1,.36,1)}
+.cf-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;user-select:none}
+.cf-card i{position:absolute;inset:0;background:#000;pointer-events:none;transition:opacity .6s cubic-bezier(.22,1,.36,1)}
+.cf-cap{text-align:center;min-height:1.7em;margin:2.5rem 0 .5rem;font:italic 1.4rem "Instrument Serif",serif}
+.cf-ctl{display:flex;justify-content:center;gap:.8rem}
+.cf-ctl button{width:2.8rem;height:2.8rem;border-radius:50%;border:1px solid var(--line);background:none;color:var(--text);font-size:1.1rem;cursor:pointer}
+.cf-ctl button:hover{border-color:var(--acc);color:var(--acc)}
+/* formulários / painel */
+input,select,textarea{width:100%;font:inherit;padding:.7rem .8rem;border:1px solid var(--line);border-radius:2px;background:var(--surface);color:var(--text)}
+label{display:block;font-size:.85rem;color:var(--muted);margin:1rem 0 .3rem}
+form.box{border:1px solid var(--line);padding:1.2rem 1.4rem;max-width:34rem;background:var(--surface)}
+.filters{display:flex;gap:.75rem;flex-wrap:wrap;margin:1rem 0}.filters input{flex:1 1 16rem;width:auto}.filters select{flex:0 1 12rem;width:auto}
+.tabs{display:flex;gap:1.5rem;margin-bottom:1rem}
+.tabs button{font:inherit;padding:.4rem 0;border:0;border-bottom:2px solid transparent;background:none;color:var(--muted);cursor:pointer}
+.tabs button[aria-selected="true"]{color:var(--text);border-color:var(--acc)}
+.msg{margin:1rem 0;padding:.7rem 1rem;border-left:3px solid var(--acc);background:var(--surface)}
+.msg.err{border-color:#ff7b5c}
+.row{display:flex;justify-content:space-between;gap:1rem;align-items:center;border-bottom:1px solid var(--line);padding:.6rem 0}
+.team{list-style:none;padding:0;display:grid;gap:.75rem;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr))}
+.team li{border-bottom:1px solid var(--line);padding-bottom:.6rem;font:400 1.4rem "Instrument Serif",serif}.team small{display:block;color:var(--muted);font:.85rem "Hanken Grotesk",sans-serif}
+footer{background:#7a2410;padding:2rem 0;font-size:.9rem;color:#f1d9c9}
+@media (max-width:48rem){.two{grid-template-columns:1fr;gap:1rem}.card{grid-template-columns:2rem 1fr;gap:.2rem 1rem}.card>span:nth-child(3),.card em{grid-column:2}.ev{grid-template-columns:1fr;gap:.3rem}}
+@media (prefers-reduced-motion:reduce){.cf-card,.cf-card i{transition:none}html{scroll-behavior:auto}}
+
+:root{--gold:#e0a32e;--wine:#241210}
+.sec.wine{background:var(--wine)}
+.sec.glow{background:radial-gradient(90% 130% at 50% 0%,#5a2a1b,#140f0d 75%)}
+.sec.glow .cf-cap{color:var(--gold)}
+.sec.gold{background:var(--gold);color:#1a1208;border-color:transparent}
+.sec.gold .lab{color:rgba(26,18,8,.8)}.sec.gold .lab span,.sec.gold .more,.sec.gold .ev b{color:#7a2410}
+.sec.gold .ev{border-color:rgba(26,18,8,.25)}.sec.gold .ev small{color:rgba(26,18,8,.8)}
+.ev:nth-child(3n+1) b{color:var(--gold)}.ev:nth-child(3n+2) b{color:var(--acc)}.ev:nth-child(3n) b{color:#4fb3a5}
+
+.ev.past{opacity:.5}
+.gal{display:grid;gap:.6rem;grid-template-columns:repeat(auto-fill,minmax(16rem,1fr));margin:1rem 0 4rem}
+.tile{position:relative;margin:0;aspect-ratio:1;overflow:hidden;background:#1a1a1a;cursor:zoom-in}
+.tile img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s cubic-bezier(.22,1,.36,1)}
+.tile .cap{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;gap:.25rem;padding:1.1rem;background:linear-gradient(0deg,rgba(20,10,6,.93),rgba(20,10,6,.35) 65%,transparent);opacity:0;transition:opacity .35s;font-size:.95rem}
+.tile .cap small{color:var(--gold);text-transform:uppercase;letter-spacing:.1em;font-size:.72rem}
+.tile .cap strong{font:400 1.6rem "Instrument Serif",serif;line-height:1.05}
+.tile:hover .cap,.tile:focus .cap{opacity:1}
+.tile:hover img{transform:scale(1.06)}
+.lb{background:#140f0d;color:var(--text);border:1px solid var(--line);padding:1rem;max-width:min(92vw,60rem)}
+.lb::backdrop{background:rgba(0,0,0,.82)}
+.lb img{max-width:100%;max-height:72vh;display:block;margin:0 auto}
+.lb p{margin:.8rem 0}
+.facts{display:grid;gap:2rem;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));margin-top:1.5rem}
+.facts h3{font-size:1.7rem;color:var(--gold);margin-bottom:.4rem}.facts p{margin:0;color:var(--muted)}
+.info{display:grid;grid-template-columns:8rem 1fr;gap:.6rem 1rem;margin:1rem 0}.info dt{color:var(--muted)}.info dd{margin:0}
+.cols2{display:grid;gap:3rem;grid-template-columns:minmax(0,34rem) 1fr;align-items:start;margin-bottom:4rem}
+.hp{position:absolute;left:-9999px;height:0;overflow:hidden}
+@media (max-width:48rem){.cols2{grid-template-columns:1fr;gap:2rem}.info{grid-template-columns:1fr}}
+
+/* cabeçalho sólido (antes sobrepunha o título da página) */
+header{mix-blend-mode:normal;color:var(--text);background:rgba(14,13,12,.9);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);transition:background .3s,border-color .3s}
+body.at-top header{background:transparent;border-color:transparent;-webkit-backdrop-filter:none;backdrop-filter:none}
+body.menu-open header{background:rgba(14,13,12,.97)}
+.menu-btn{display:none;background:none;border:1px solid var(--line);color:var(--text);font:inherit;font-size:.9rem;padding:.35rem .9rem;cursor:pointer}
+@media (max-width:48rem){.menu-btn{display:block}nav ul{display:none;width:100%;flex-direction:column;gap:0;padding:.3rem 0 1rem}nav.open ul{display:flex}nav ul a,nav ul button.link{display:block;padding:.6rem 0}.page-title{padding-top:6.5rem}}
+.filters select{flex:0 1 14rem}
+.row{min-width:0}.row span{min-width:0;overflow-wrap:anywhere}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+label.chk{display:flex;gap:.5rem;align-items:center;color:var(--text)}input[type=checkbox]{width:auto}
+/* acervo com capas */
+.shelf{list-style:none;margin:1.5rem 0 4rem;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(10.5rem,1fr));gap:2rem 1.2rem}
+.book{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;text-align:left}
+.book:focus-visible{outline:2px solid var(--acc);outline-offset:6px}
+.capa{aspect-ratio:2/3;background:#1a1a1a;overflow:hidden;box-shadow:0 10px 24px rgba(0,0,0,.45);transition:transform .35s cubic-bezier(.22,1,.36,1)}
+.book:hover .capa{transform:translateY(-6px) rotate(-1deg)}
+.capa img{width:100%;height:100%;object-fit:cover;display:block}
+.capa.ph{display:flex;flex-direction:column;justify-content:space-between;padding:1rem .9rem;background:linear-gradient(160deg,var(--c),#1a0d08 140%);color:#fff}
+.capa.ph span{font:400 1.45rem/1.05 "Instrument Serif",serif}
+.capa.ph small{font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;opacity:.85}
+.book strong{display:block;margin-top:.8rem;font:400 1.25rem/1.1 "Instrument Serif",serif;color:var(--text)}
+.book .au{display:block;color:var(--muted);font-size:.9rem}
+.book .st{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
+.bk-dlg{background:#171310;color:var(--text);border:1px solid var(--line);padding:0;width:min(94vw,56rem);max-height:90vh;overflow:auto}
+.bk-dlg::backdrop{background:rgba(0,0,0,.8)}
+.bk-in{display:grid;grid-template-columns:14rem 1fr;gap:2rem;padding:2rem;position:relative}
+.bk-in .capa{align-self:start}
+.bk-x{position:absolute;top:.8rem;right:.8rem}
+.bk-dlg h2{font-size:clamp(2rem,4vw,3rem);margin:.4rem 0 .2rem}
+.bk-meta{color:var(--muted);font-size:.95rem}
+.bk-dlg h3{font:600 .75rem "Hanken Grotesk",sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin:1.4rem 0 .3rem}
+.bk-dlg p{margin:.2rem 0}
+.bk-rel{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem}
+.bk-rel button{font:inherit;font-size:.9rem;background:none;color:var(--text);border:1px solid var(--line);padding:.3rem .7rem;cursor:pointer}
+.bk-rel button:hover{border-color:var(--acc);color:var(--acc)}
+.pill{display:inline-block;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;padding:.1rem .6rem;border:1px solid currentColor;margin-right:.4rem}
+@media (max-width:40rem){.bk-in{grid-template-columns:1fr;padding:1.2rem;gap:1rem}.bk-in .capa{max-width:10rem}.pair{grid-template-columns:1fr}}
+@media (max-width:30rem){.shelf{grid-template-columns:repeat(2,minmax(0,1fr));gap:1.6rem .9rem}.capa.ph span{font-size:1.15rem}}
+
+.rel{padding:1.2rem 0;border-bottom:1px solid var(--line)}
+.rel .rh{display:flex;gap:1rem;align-items:baseline;flex-wrap:wrap}
+.rel .rh strong{font:400 1.5rem "Instrument Serif",serif}
+.rel .rh small{color:var(--muted)}
+.rel .del{margin-left:auto;background:none;border:0;color:var(--acc);cursor:pointer;font:inherit;font-size:.85rem}
+.rel p{margin:.4rem 0 0;white-space:pre-line}
+#rl{margin:1.2rem 0 1rem;border-top:1px solid var(--line)}
+#rl:empty{border:0;margin:0}
+.row .acts{display:flex;gap:.5rem;align-items:center;flex-shrink:0}.row .acts select{width:auto}
+@media (max-width:40rem){.row{flex-wrap:wrap}}
+[hidden]{display:none!important}
+
+.hs-fig img{position:absolute;left:0;top:0;max-width:none}
+
+.acts{margin-top:1.5rem;border-top:1px solid var(--line);counter-reset:a}
+.act{counter-increment:a;display:grid;grid-template-columns:3rem 1fr;gap:0 1rem;padding:1.1rem 0;border-bottom:1px solid var(--line)}
+.act::before{content:counter(a,decimal-leading-zero);grid-row:span 2;color:var(--acc);font-size:.85rem;padding-top:.55rem}
+.act strong{font:400 1.7rem/1.1 "Instrument Serif",serif}
+.act p{margin:.3rem 0 0;color:var(--muted)}
+
+/* espaçamento antes do rodapé e entre formulários */
+form.box:last-child{margin-bottom:4rem}
+.wrap > section:last-child{padding-bottom:4rem}
+.box + .box{margin-top:2rem}
+.box h2{font-size:1.8rem;margin-bottom:.2rem}
+.linkbtn{background:none;border:0;color:var(--gold);font:inherit;font-size:.95rem;cursor:pointer;padding:0;text-decoration:underline}

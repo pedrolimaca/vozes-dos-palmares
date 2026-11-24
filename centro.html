@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>O Centro · Vozes dos Palmares</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600&family=Instrument+Serif:ital@0;1&display=swap">
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="js/config.js"></script><script src="js/app.js"></script></head>
+<body><div id="top"></div><main>
+<div class="wrap"><div class="page-title"><h1>O Centro Cultural</h1><p class="lead">Centro Cultural Afro-brasileiro e Biblioteca Zumbi dos Palmares, em Taubaté (SP): um espaço de leitura, memória e encontro em torno da cultura afro-brasileira.</p></div></div>
+<section class="sec wine"><div class="wrap two"><div class="lab"><span>01</span>O que existe lá</div><div><h2>Livros, exposição e oficinas</h2>
+<div class="facts"><div><h3>Biblioteca</h3><p>Livros sobre a história, a literatura e a cultura afro-brasileira e africana.</p></div><div><h3>Exposição</h3><p>Um espaço de exposição sobre a cultura africana e afro-brasileira.</p></div><div><h3>Oficinas</h3><p>Vivências como pintura em tecido, abayomis, música e dança.</p></div></div>
+<a class="more" href="acervo.html">Ver o acervo →</a></div></div></section>
+<section class="sec glow"><div class="wrap two"><div class="lab"><span>02</span>Atividades</div><div><h2>O que o centro realiza</h2><p class="lead">Atividades e oficinas do centro. Datas e novidades ficam na <a href="agenda.html" style="color:var(--gold)">agenda</a>.</p><div class="acts" id="at"></div></div></div></section>
+<section class="sec gold"><div class="wrap two"><div class="lab"><span>03</span>O nome</div><div><h2>Por que Zumbi dos Palmares</h2><p style="max-width:40rem">Zumbi (1655–1695) foi o último líder do Quilombo dos Palmares, no atual estado de Alagoas, e é símbolo da resistência à escravidão. O Dia da Consciência Negra, 20 de novembro, lembra a data da sua morte.</p></div></div></section>
+<section class="sec glow"><div class="wrap two"><div class="lab"><span>04</span>Visite</div><div><h2>Como chegar e quando ir</h2><dl class="info" id="info"></dl>
+<p><a class="btn" href="contato.html">Fale com o centro</a> <a class="btn alt" href="agenda.html">Ver a agenda</a></p></div></div></section>
+<section class="sec wine"><div class="wrap two"><div class="lab"><span>05</span>Relatos</div><div><h2>O que as pessoas contam</h2><p class="lead">Já esteve lá? Conte como foi. Os relatos ajudam outras pessoas a conhecer o espaço.</p><div id="rf"></div><div id="rl"></div><p><button class="btn alt" id="rm" type="button" hidden>Ver mais relatos</button></p></div></div></section>
+</main><div id="foot"></div>
+<script>
+(async()=>{const {user,staff}=await layout("centro.html");
+$("#info").innerHTML=infoCentro();
+(async()=>{const {data,error}=await sb.from("atividades").select("*").order("ordem"),el=$("#at");
+ if(error){el.innerHTML=`<p class="msg err">Não foi possível carregar as atividades. (${esc(error.message)})</p>`;return}
+ const l=data.slice().sort((a,b)=>(a.ordem-b.ordem)||String(a.created_at).localeCompare(String(b.created_at)));
+ el.innerHTML=l.length?l.map(a=>`<div class="act"><strong>${esc(a.titulo)}</strong>${a.descricao?`<p>${esc(a.descricao)}</p>`:""}</div>`).join(""):`<p class="msg">Em breve, as atividades do centro aparecem aqui.</p>`;})();
+const PAGE=4;let off=0;
+const mine=r=>user&&(r.user_id===user.id||staff);
+const card=r=>`<article class="rel"><div class="rh"><strong>${esc(r.nome)}</strong><small>${esc(dia(r.created_at).toLocaleDateString("pt-BR",{day:"numeric",month:"long",year:"numeric"}))}</small>${mine(r)?`<button class="del" type="button" data-del="${esc(r.id)}">Excluir</button>`:""}</div><p>${esc(r.texto)}</p></article>`;
+async function mais(){
+ const {data,error}=await sb.from("relatos").select("*").order("created_at",{ascending:false}).range(off,off+PAGE);
+ const el=$("#rl");
+ if(error){el.insertAdjacentHTML("beforeend",`<p class="msg err">Não foi possível carregar os relatos. (${esc(error.message)})</p>`);return}
+ const pg=data.slice(0,PAGE);
+ if(!off&&!pg.length)el.innerHTML='<p class="msg">Ainda não há relatos. Seja a primeira pessoa a contar como foi.</p>';
+ el.insertAdjacentHTML("beforeend",pg.map(card).join(""));off+=pg.length;$("#rm").hidden=data.length<=PAGE;}
+function recarregar(){off=0;$("#rl").innerHTML="";mais();}
+$("#rm").onclick=mais;mais();
+$("#rl").addEventListener("click",async e=>{const b=e.target.closest("[data-del]");if(!b||!confirm("Excluir este relato?"))return;
+ await sb.from("relatos").delete().eq("id",b.dataset.del);recarregar();});
+$("#rf").innerHTML=user?`<form class="box" id="rfm"><label for="rt">Seu relato</label><textarea id="rt" rows="4" required minlength="3" maxlength="1000"></textarea><div id="rmsg" class="msg" hidden role="status"></div><p><button class="btn" id="rok">Publicar relato</button></p></form>`:`<p class="msg">Para publicar um relato, <a href="login.html">entre na sua conta</a> ou crie uma (é rápido).</p>`;
+if($("#rfm"))$("#rfm").onsubmit=async e=>{e.preventDefault();const b=$("#rok"),say=(t,x)=>{const m=$("#rmsg");m.hidden=false;m.textContent=t;m.className="msg"+(x?" err":"");};
+ b.disabled=true;let nome="Visitante";
+ {const {data}=await sb.from("profiles").select("nome,bloqueado").eq("id",user.id).maybeSingle();
+  if(data&&data.bloqueado){say("Sua conta está impedida de publicar relatos.",1);b.disabled=false;return}
+  nome=(data&&data.nome)||user.email.split("@")[0];}
+ const {error}=await sb.from("relatos").insert({user_id:user.id,nome,texto:$("#rt").value.trim()});
+ if(error)say("Não foi possível publicar: "+error.message,1);else{e.target.reset();recarregar();say("Relato publicado. Obrigado por contar!");}
+ b.disabled=false;};
+})();
+</script></body></html>

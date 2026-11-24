@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Contato · Vozes dos Palmares</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600&family=Instrument+Serif:ital@0;1&display=swap">
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="js/config.js"></script><script src="js/app.js"></script></head>
+<body><div id="top"></div><main>
+<div class="wrap"><div class="page-title"><h1>Contato</h1><p class="lead">Dúvidas, sugestões de livros ou vontade de ajudar? Escreva para o centro.</p></div>
+<div class="cols2"><form class="box" id="f"><label for="nome">Nome</label><input id="nome" required maxlength="120" autocomplete="name">
+<label for="email">Seu e-mail</label><input id="email" type="email" required maxlength="200" autocomplete="email">
+<label for="msg">Mensagem</label><textarea id="msg" rows="6" required maxlength="3000"></textarea>
+<div class="hp" aria-hidden="true"><label for="site">Não preencha</label><input id="site" tabindex="-1" autocomplete="off"></div>
+<div id="m" class="msg" hidden role="status"></div><p><button class="btn" id="ok">Enviar mensagem</button></p></form>
+<div><h2>O centro</h2><dl class="info" id="info"></dl></div></div></div>
+</main><div id="foot"></div>
+<script>
+(async()=>{await layout("contato.html");
+$("#info").innerHTML=infoCentro();
+const say=(t,err)=>{const m=$("#m");m.hidden=false;m.textContent=t;m.className="msg"+(err?" err":"");};
+$("#f").onsubmit=async e=>{e.preventDefault();const b=$("#ok");b.disabled=true;
+ const d={nome:$("#nome").value.trim(),email:$("#email").value.trim(),mensagem:$("#msg").value.trim()};
+ if($("#site").value){say("Mensagem enviada!");b.disabled=false;return}
+ const r1=await sb.from("mensagens").insert(d);
+ let okMail=false;try{const r=await fetch("/api/contato",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(d)});okMail=r.ok}catch(_){}
+ if(r1.error&&!okMail)say("Não foi possível enviar agora. Tente de novo em instantes.",1);else{say("Mensagem enviada! Responderemos pelo e-mail informado.");e.target.reset()}
+ b.disabled=false;};})();
+</script></body></html>

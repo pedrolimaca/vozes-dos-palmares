@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vozes dos Palmares</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600&family=Instrument+Serif:ital@0;1&display=swap">
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="js/config.js"></script><script src="js/app.js"></script></head>
+<body><div id="top"></div><main class="flush">
+<section class="hs" style="padding:0"><div class="hs-pin"><figure class="hs-fig"><img src="img/hero.webp" alt="Retrato de Zumbi dos Palmares" onerror="this.remove()"></figure>
+<div class="hs-txt"><div class="wrap"><h1>Vozes dos Palmares</h1><p>O acervo e a programação do Centro Cultural Afro-brasileiro e Biblioteca Zumbi dos Palmares, em Taubaté.</p></div></div>
+<span class="hs-cue">role para abrir ↓</span></div></section>
+<section class="sec wine"><div class="wrap two"><div class="lab"><span>01</span>Acervo</div><div><h2>Livros que contam a nossa história</h2><ul class="grid" id="l"></ul><a class="more" href="acervo.html">Ver todo o acervo →</a></div></div></section>
+<section class="sec gold"><div class="wrap two"><div class="lab"><span>02</span>Agenda</div><div><h2>Próximos encontros</h2><div id="e"></div><a class="more" href="agenda.html">Ver agenda completa →</a></div></div></section>
+<section class="sec glow"><div class="wrap"><div class="lab"><span>03</span>O espaço</div><div id="f"></div><p style="text-align:center"><a class="more" href="galeria.html">Ver galeria →</a></p></div></section>
+</main><div id="foot"></div>
+<script>
+(async()=>{await layout("index.html");scrollHero();
+show($("#l"),sb.from("livros").select("*").order("created_at",{ascending:false}).limit(5),bookCard,"Nenhum livro cadastrado ainda.");
+show($("#e"),upcoming().limit(3),eventCard,"Nenhum evento programado no momento.");
+const {data}=await sb.from("fotos").select("*").order("created_at",{ascending:false}).limit(8);
+const fs=data||[];
+coverflow($("#f"),fs);})();
+</script></body></html>

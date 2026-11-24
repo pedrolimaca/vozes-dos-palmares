@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Acervo · Vozes dos Palmares</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600&family=Instrument+Serif:ital@0;1&display=swap">
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="js/config.js"></script><script src="js/app.js"></script></head>
+<body><div id="top"></div><main>
+<div class="wrap"><div class="page-title"><h1>Acervo</h1><p class="lead">Pesquise os livros da biblioteca por título, autor ou tema. Clique num livro para ver os detalhes.</p></div>
+<div class="filters"><input id="q" type="search" placeholder="Busque por título ou autor" aria-label="Buscar no acervo"><select id="t" aria-label="Tema"></select></div>
+<ul class="shelf" id="l"></ul></div>
+<dialog id="bk" class="bk-dlg" aria-label="Detalhes do livro"><div class="bk-in" id="bkc"></div></dialog>
+</main><div id="foot"></div>
+<script>
+(async()=>{await layout("acervo.html");
+$("#t").innerHTML='<option value="">Todos os temas</option>'+TEMAS.map(t=>`<option>${t}</option>`).join("");
+const {data,error}=await sb.from("livros").select("*").order("titulo");
+const L=data||[];
+const n=s=>(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+const cor=b=>TC[b.tema]||TC.Outro;
+const capa=b=>b.capa?`<div class="capa"><img src="${esc(b.capa)}" alt="Capa de ${esc(b.titulo)}" loading="lazy"></div>`:`<div class="capa ph" style="--c:${cor(b)}"><span>${esc(b.titulo)}</span><small>${esc(b.autor)}</small></div>`;
+const st=b=>b.disponivel===false?`<span style="color:var(--acc)">Emprestado</span>`:`<span style="color:#9bc45a">Disponível</span>`;
+function draw(){const q=n($("#q").value),t=$("#t").value;
+ const r=L.filter(b=>(!t||b.tema===t)&&(!q||n(b.titulo+" "+b.autor).includes(q)));
+ $("#l").innerHTML=error?`<p class="msg err">Erro ao carregar: ${esc(error.message)}</p>`:r.length?r.map(b=>`<li><button class="book" type="button" data-id="${esc(b.id)}">${capa(b)}<strong>${esc(b.titulo)}</strong><span class="au">${esc(b.autor)}</span><span class="st">${st(b)}</span></button></li>`).join(""):`<p class="msg">Nenhum livro encontrado. Tente outro título, autor ou tema.</p>`;}
+$("#q").oninput=draw;$("#t").onchange=draw;draw();
+const dlg=$("#bk");
+function abrir(id){const b=L.find(x=>String(x.id)===String(id));if(!b)return;
+ const mesmo=L.filter(x=>x.id!==b.id&&x.autor===b.autor),tema=L.filter(x=>x.id!==b.id&&x.autor!==b.autor&&x.tema===b.tema).slice(0,5);
+ const rel=(t,l)=>l.length?`<h3>${t}</h3><div class="bk-rel">${l.map(x=>`<button type="button" data-id="${esc(x.id)}">${esc(x.titulo)}</button>`).join("")}</div>`:"";
+ const meta=[b.ano,b.editora].filter(Boolean).join(" · ");
+ $("#bkc").innerHTML=`<button class="btn alt bk-x" type="button" id="bkx" aria-label="Fechar">Fechar</button>${capa(b)}<div>
+ <span class="pill" style="color:${cor(b)}">${esc(b.tema)}</span><span class="pill">${b.disponivel===false?"Emprestado":"Disponível"}</span>
+ <h2>${esc(b.titulo)}</h2><div class="bk-meta">${esc(b.autor)}${meta?" · "+esc(meta):""}</div>
+ ${b.descricao?`<p style="margin-top:1rem">${esc(b.descricao)}</p>`:""}
+ ${b.detalhes?`<h3>Sobre a obra</h3><p>${esc(b.detalhes)}</p>`:""}
+ ${b.sobre_autor?`<h3>Sobre o autor</h3><p>${esc(b.sobre_autor)}</p>`:""}
+ ${b.localizacao?`<h3>Onde encontrar</h3><p>${esc(b.localizacao)}</p>`:""}
+ ${rel("Mais deste autor",mesmo)}${rel("Do mesmo tema",tema)}</div>`;
+ $("#bkx").onclick=()=>dlg.close();
+ if(!dlg.open)dlg.showModal();dlg.scrollTop=0;history.replaceState(null,"","?livro="+encodeURIComponent(b.id));}
+$("#l").addEventListener("click",e=>{const x=e.target.closest(".book");if(x)abrir(x.dataset.id)});
+$("#bkc").addEventListener("click",e=>{const x=e.target.closest(".bk-rel button");if(x)abrir(x.dataset.id)});
+dlg.addEventListener("click",e=>{if(e.target===dlg)dlg.close()});
+dlg.addEventListener("close",()=>history.replaceState(null,"",location.pathname));
+const id=new URLSearchParams(location.search).get("livro");if(id)abrir(id);})();
+</script></body></html>

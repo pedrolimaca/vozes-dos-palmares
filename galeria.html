@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Galeria · Vozes dos Palmares</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600&family=Instrument+Serif:ital@0;1&display=swap">
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="js/config.js"></script><script src="js/app.js"></script></head>
+<body><div id="top"></div><main>
+<div class="wrap"><div class="page-title"><h1>Galeria</h1><p class="lead">Fotos do Centro Cultural. Passe o mouse (ou toque) sobre uma foto para ver a descrição do dia; clique para ampliar.</p></div>
+<div class="filters"><select id="m" aria-label="Filtrar por mês"></select></div>
+<div class="gal" id="g"></div></div>
+<dialog id="dlg" class="lb"><img id="dimg" alt=""><p id="dcap"></p><button class="btn alt" id="dx" type="button">Fechar</button></dialog>
+</main><div id="foot"></div>
+<script>
+(async()=>{await layout("galeria.html");
+const {data,error}=await sb.from("fotos").select("*").order("created_at",{ascending:false});
+const g=$("#g");
+if(error){g.innerHTML=`<p class="msg err">Erro ao carregar: ${esc(error.message)}</p>`;return}
+const fotos=data.map(f=>({...f,d:f.data||f.created_at})).sort((a,b)=>dia(b.d)-dia(a.d));
+$("#m").innerHTML=mesesOpcoes(fotos.map(f=>f.d),'<option value="">Todos os meses</option>');
+function draw(){const m=$("#m").value,r=fotos.filter(f=>!m||mesChave(f.d)===m);
+ g.innerHTML=r.length?r.map(f=>`<div class="tile" tabindex="0" role="button" aria-label="Ampliar foto: ${esc(f.legenda||"sem legenda")}" data-id="${esc(f.id)}"><img src="${esc(f.url)}" alt="${esc(f.legenda||"Foto do Centro Cultural")}" loading="lazy"><div class="cap"><small>${esc(dia(f.d).toLocaleDateString("pt-BR",{day:"numeric",month:"long",year:"numeric"}))}</small><strong>${esc(f.legenda||"")}</strong>${f.descricao?`<span>${esc(f.descricao)}</span>`:""}</div></div>`).join(""):`<p class="msg">Nenhuma foto neste período.</p>`;}
+$("#m").onchange=draw;draw();
+const dlg=$("#dlg");
+function abrir(t){const f=fotos.find(x=>String(x.id)===t.dataset.id);if(!f)return;$("#dimg").src=f.url;$("#dimg").alt=f.legenda||"";$("#dcap").innerHTML=`<strong>${esc(f.legenda||"")}</strong><br>${esc(f.descricao||"")}`;dlg.showModal();}
+g.addEventListener("click",e=>{const t=e.target.closest(".tile");if(t)abrir(t)});
+g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){const t=e.target.closest(".tile");if(t){e.preventDefault();abrir(t)}}});
+dlg.addEventListener("click",e=>{if(e.target===dlg)dlg.close()});$("#dx").onclick=()=>dlg.close();})();
+</script></body></html>
