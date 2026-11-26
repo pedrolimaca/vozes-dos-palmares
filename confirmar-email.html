@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Confirmação de e-mail · Vozes dos Palmares</title>
+<link rel="icon" type="image/png" sizes="64x64" href="/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600&family=Instrument+Serif:ital@0;1&display=swap">
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="js/auth-pt.js"></script><script src="js/config.js"></script><script src="js/app.js"></script></head>
+<body><div id="top"></div><main>
+<div class="wrap">
+<div class="page-title"><h1>Confirmação de e-mail</h1></div>
+<p class="msg" id="confirmacao" role="status" aria-live="polite">Verificando a confirmação do seu e-mail…</p>
+<p><a class="btn" href="/login">Ir para a página de entrada</a></p>
+</div></main><div id="foot"></div>
+<script>
+(async()=>{
+  const resultado=$("#confirmacao");
+  try {
+    if(erroRetornoAuth()){
+      resultado.textContent=mensagemAuth({code:retornoAuth.get("error_code")},"Não foi possível confirmar seu e-mail. Solicite um novo link na página Entrar.");
+      resultado.classList.add("err");
+    }else if(retornoAuth.get("type")==="signup"&&retornoAuth.has("access_token")){
+      const {data,error}=await sb.auth.getUser();
+      if(!error&&data.user?.email_confirmed_at){
+        resultado.textContent="Seu e-mail foi confirmado com sucesso. Você já pode entrar na sua conta.";
+      }else{
+        resultado.textContent="Não conseguimos verificar a confirmação. Tente entrar ou solicite um novo link na página Entrar.";
+        resultado.classList.add("err");
+      }
+    }else{
+      resultado.textContent="Abra o link enviado ao seu e-mail para confirmar o cadastro.";
+    }
+  }catch{
+    resultado.textContent="Não foi possível verificar a confirmação agora. Tente entrar na sua conta.";
+    resultado.classList.add("err");
+  }finally{
+    if(retornoAuth.has("access_token")||erroRetornoAuth())limparRetornoAuth();
+  }
+  await layout("confirmar-email.html");
+})();
+</script></body></html>
