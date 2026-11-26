@@ -24,7 +24,7 @@ nav a:hover,nav a[aria-current],nav button.link:hover{border-color:currentColor}
 .hs-cue{position:absolute;right:1.5rem;bottom:2rem;z-index:2;font-size:.85rem;letter-spacing:.14em;text-transform:uppercase;color:#d8d0c2}
 /* seções */
 .sec{padding:5rem 0;border-top:1px solid var(--line)}
-.two{display:grid;grid-template-columns:12rem 1fr;gap:2rem}
+.two{display:grid;grid-template-columns:12rem minmax(0,1fr);gap:2rem}
 .lab{font-size:.85rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 .lab span{color:var(--acc);margin-right:.6rem}
 .more{display:inline-block;margin-top:1.5rem;color:var(--acc)}
@@ -32,7 +32,7 @@ nav a:hover,nav a[aria-current],nav button.link:hover{border-color:currentColor}
 .lead{max-width:44rem;color:var(--muted)}
 section{padding:2rem 0}
 h2{font-size:clamp(2rem,4vw,3rem);margin-bottom:1rem}
-.btn{display:inline-block;background:var(--acc);color:#0e0d0c;font:600 .95rem "Hanken Grotesk",sans-serif;padding:.75rem 1.4rem;border:0;border-radius:2px;text-decoration:none;cursor:pointer}
+.btn{display:inline-block;max-width:100%;overflow-wrap:anywhere;background:var(--acc);color:#0e0d0c;font:600 .95rem "Hanken Grotesk",sans-serif;padding:.75rem 1.4rem;border:0;border-radius:2px;text-decoration:none;cursor:pointer}
 .btn.alt{background:none;color:var(--text);border:1px solid var(--text)}
 .btn.danger{background:none;color:var(--acc);border:1px solid var(--acc);padding:.3rem .8rem;font-size:.85rem}
 /* acervo como índice de catálogo */
@@ -63,8 +63,8 @@ h2{font-size:clamp(2rem,4vw,3rem);margin-bottom:1rem}
 input,select,textarea{width:100%;font:inherit;padding:.7rem .8rem;border:1px solid var(--line);border-radius:2px;background:var(--surface);color:var(--text)}
 label{display:block;font-size:.85rem;color:var(--muted);margin:1rem 0 .3rem}
 form.box{border:1px solid var(--line);padding:1.2rem 1.4rem;max-width:34rem;background:var(--surface)}
-.filters{display:flex;gap:.75rem;flex-wrap:wrap;margin:1rem 0}.filters input{flex:1 1 16rem;width:auto}.filters select{flex:0 1 12rem;width:auto}
-.tabs{display:flex;gap:1.5rem;margin-bottom:1rem}
+.filters{display:flex;gap:.75rem;flex-wrap:wrap;margin:1rem 0}.filters input{flex:1 1 16rem;min-width:0;width:auto}.filters select{flex:0 1 14rem;min-width:0;max-width:100%;width:auto}
+.tabs{display:flex;flex-wrap:wrap;gap:.5rem 1.5rem;margin-bottom:1rem}
 .tabs button{font:inherit;padding:.4rem 0;border:0;border-bottom:2px solid transparent;background:none;color:var(--muted);cursor:pointer}
 .tabs button[aria-selected="true"]{color:var(--text);border-color:var(--acc)}
 .msg{margin:1rem 0;padding:.7rem 1rem;border-left:3px solid var(--acc);background:var(--surface)}
@@ -73,7 +73,7 @@ form.box{border:1px solid var(--line);padding:1.2rem 1.4rem;max-width:34rem;back
 .team{list-style:none;padding:0;display:grid;gap:.75rem;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr))}
 .team li{border-bottom:1px solid var(--line);padding-bottom:.6rem;font:400 1.4rem "Instrument Serif",serif}.team small{display:block;color:var(--muted);font:.85rem "Hanken Grotesk",sans-serif}
 footer{background:#7a2410;padding:2rem 0;font-size:.9rem;color:#f1d9c9}
-@media (max-width:48rem){.two{grid-template-columns:1fr;gap:1rem}.card{grid-template-columns:2rem 1fr;gap:.2rem 1rem}.card>span:nth-child(3),.card em{grid-column:2}.ev{grid-template-columns:1fr;gap:.3rem}}
+@media (max-width:48rem){.two{grid-template-columns:minmax(0,1fr);gap:1rem}.card{grid-template-columns:2rem 1fr;gap:.2rem 1rem}.card>span:nth-child(3),.card em{grid-column:2}.ev{grid-template-columns:1fr;gap:.3rem}}
 @media (prefers-reduced-motion:reduce){.cf-card,.cf-card i{transition:none}html{scroll-behavior:auto}}
 
 :root{--gold:#e0a32e;--wine:#241210}
@@ -110,8 +110,7 @@ header{mix-blend-mode:normal;color:var(--text);background:rgba(14,13,12,.9);-web
 body.at-top header{background:transparent;border-color:transparent;-webkit-backdrop-filter:none;backdrop-filter:none}
 body.menu-open header{background:rgba(14,13,12,.97)}
 .menu-btn{display:none;background:none;border:1px solid var(--line);color:var(--text);font:inherit;font-size:.9rem;padding:.35rem .9rem;cursor:pointer}
-@media (max-width:48rem){.menu-btn{display:block}nav ul{display:none;width:100%;flex-direction:column;gap:0;padding:.3rem 0 1rem}nav.open ul{display:flex}nav ul a,nav ul button.link{display:block;padding:.6rem 0}.page-title{padding-top:6.5rem}}
-.filters select{flex:0 1 14rem}
+@media (max-width:64rem){.menu-btn{display:block}nav ul{display:none;width:100%;max-height:calc(100dvh - 5rem);overflow-y:auto;flex-direction:column;gap:0;padding:.3rem .2rem 1rem}nav.open ul{display:flex}nav ul a,nav ul button.link{display:block;padding:.6rem 0}.page-title{padding-top:6.5rem}}
 .row{min-width:0}.row span{min-width:0;overflow-wrap:anywhere}
 .pair{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
 label.chk{display:flex;gap:.5rem;align-items:center;color:var(--text)}input[type=checkbox]{width:auto}
@@ -130,9 +129,9 @@ label.chk{display:flex;gap:.5rem;align-items:center;color:var(--text)}input[type
 .book .st{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
 .bk-dlg{background:#171310;color:var(--text);border:1px solid var(--line);padding:0;width:min(94vw,56rem);max-height:90vh;overflow:auto}
 .bk-dlg::backdrop{background:rgba(0,0,0,.8)}
-.bk-in{display:grid;grid-template-columns:14rem 1fr;gap:2rem;padding:2rem;position:relative}
+.bk-in{display:grid;grid-template-columns:14rem minmax(0,1fr);overflow-wrap:anywhere;gap:2rem;padding:2rem;position:relative}
 .bk-in .capa{align-self:start}
-.bk-x{position:absolute;top:.8rem;right:.8rem}
+.bk-x{grid-column:1/-1;justify-self:end}
 .bk-dlg h2{font-size:clamp(2rem,4vw,3rem);margin:.4rem 0 .2rem}
 .bk-meta{color:var(--muted);font-size:.95rem}
 .bk-dlg h3{font:600 .75rem "Hanken Grotesk",sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin:1.4rem 0 .3rem}
@@ -152,15 +151,17 @@ label.chk{display:flex;gap:.5rem;align-items:center;color:var(--text)}input[type
 .rel p{margin:.4rem 0 0;white-space:pre-line}
 #rl{margin:1.2rem 0 1rem;border-top:1px solid var(--line)}
 #rl:empty{border:0;margin:0}
-.row .acts{display:flex;gap:.5rem;align-items:center;flex-shrink:0}.row .acts select{width:auto}
+.row .acts{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;flex-shrink:0;max-width:100%;margin:0;border-top:0}.row .acts select{width:auto}
 @media (max-width:40rem){.row{flex-wrap:wrap}}
 [hidden]{display:none!important}
 
 .hs-fig img{position:absolute;left:0;top:0;max-width:none}
 
 .acts{margin-top:1.5rem;border-top:1px solid var(--line);counter-reset:a}
-.act{counter-increment:a;display:grid;grid-template-columns:3rem 1fr;gap:0 1rem;padding:1.1rem 0;border-bottom:1px solid var(--line)}
-.act::before{content:counter(a,decimal-leading-zero);grid-row:span 2;color:var(--acc);font-size:.85rem;padding-top:.55rem}
+.act{counter-increment:a;display:grid;grid-template-columns:3rem minmax(0,1fr);gap:0 1rem;overflow-wrap:anywhere;padding:1.1rem 0;border-bottom:1px solid var(--line)}
+.act::before{content:counter(a,decimal-leading-zero);grid-column:1;grid-row:1;color:var(--acc);font-size:.85rem;padding-top:.55rem}
+.act > *{grid-column:2}
+.act > .btn{justify-self:start;margin-top:.85rem}
 .act strong{font:400 1.7rem/1.1 "Instrument Serif",serif}
 .act p{margin:.3rem 0 0;color:var(--muted)}
 
@@ -176,6 +177,5 @@ body{caret-color:transparent}
 input,textarea,[contenteditable="true"]{caret-color:currentColor}
 .editor-pagina{width:min(94vw,36rem)}
 .editor-pagina .box{max-width:none;margin:0;border:0}
-.editor-acoes{display:flex;gap:.75rem;flex-wrap:wrap;padding-top:1rem}
-.editor-acoes [hidden],#editar-foto[hidden]{display:none}
+.editor-acoes,.lb-acoes{display:flex;gap:.75rem;flex-wrap:wrap;padding-top:1rem}
 .gestao-local{padding:0;margin:1rem 0}
