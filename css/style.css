@@ -169,3 +169,12 @@ form.box:last-child{margin-bottom:4rem}
 .box + .box{margin-top:2rem}
 .box h2{font-size:1.8rem;margin-bottom:.2rem}
 .linkbtn{background:none;border:0;color:var(--gold);font:inherit;font-size:.95rem;cursor:pointer;padding:0;text-decoration:underline}
+
+/* Cursor de inserção só nos campos de texto. */
+body{caret-color:transparent}
+input,textarea,[contenteditable="true"]{caret-color:currentColor}
+.editor-pagina{width:min(94vw,36rem)}
+.editor-pagina .box{max-width:none;margin:0;border:0}
+.editor-acoes{display:flex;gap:.75rem;flex-wrap:wrap;padding-top:1rem}
+.editor-acoes [hidden],#editar-foto[hidden]{display:none}
+.gestao-local{padding:0;margin:1rem 0}

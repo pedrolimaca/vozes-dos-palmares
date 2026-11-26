@@ -13,9 +13,31 @@
 <div class="hp" aria-hidden="true"><label for="site">Não preencha</label><input id="site" tabindex="-1" autocomplete="off"></div>
 <div id="m" class="msg" hidden role="status"></div><p><button class="btn" id="ok">Enviar mensagem</button></p></form>
 <div><h2>O centro</h2><dl class="info" id="info"></dl></div></div></div>
+<section class="wrap" id="caixa-mensagens" aria-labelledby="mensagens-titulo" hidden><h2 id="mensagens-titulo">Mensagens recebidas</h2><p class="msg" id="mensagens-aviso" role="status" hidden></p><div id="mensagens-lista"></div></section>
 </main><div id="foot"></div>
 <script>
-(async()=>{await layout("contato.html");
+(async()=>{const {admin}=await layout("contato.html");
+if(admin){
+ const lista=$("#mensagens-lista"), aviso=$("#mensagens-aviso");
+ async function carregarMensagens(){
+  await show(lista,sb.from("mensagens").select("*").order("created_at",{ascending:false}),m=>
+   `<article class="rel"><strong>${esc(m.nome)}</strong> · ${esc(m.email)} · ${esc(fmt(m.created_at))}
+   <p>${esc(m.mensagem)}</p><button class="btn danger" type="button" data-mensagem="${esc(m.id)}">Excluir mensagem</button></article>`,
+   "Nenhuma mensagem recebida.");
+ }
+ $("#caixa-mensagens").hidden=false;
+ lista.addEventListener("click",async e=>{
+  const botao=e.target.closest("[data-mensagem]");
+  if(!botao||botao.disabled||!confirm("Excluir esta mensagem?"))return;
+  botao.disabled=true;
+  const {data,error}=await sb.from("mensagens").delete().eq("id",botao.dataset.mensagem).select("id").maybeSingle();
+  aviso.hidden=false;
+  aviso.textContent=error||!data?"Não foi possível excluir a mensagem.":"Mensagem excluída.";
+  if(error||!data)botao.disabled=false;
+  else await carregarMensagens();
+ });
+ carregarMensagens();
+}
 $("#info").innerHTML=infoCentro();
 const say=(t,err)=>{const m=$("#m");m.hidden=false;m.textContent=t;m.className="msg"+(err?" err":"");};
 $("#f").onsubmit=async e=>{e.preventDefault();const b=$("#ok");b.disabled=true;

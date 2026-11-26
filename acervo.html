@@ -12,7 +12,7 @@
 <p id="acervo-acoes" hidden><button id="adicionar-livro" class="btn" type="button">Adicionar livro</button></p>
 <ul class="shelf" id="l"></ul></div>
 <dialog id="bk" class="bk-dlg" aria-label="Detalhes do livro"><div class="bk-in" id="bkc"></div></dialog>
-<dialog id="editor-livro" class="bk-dlg" aria-labelledby="editor-titulo">
+<dialog id="editor-livro" class="bk-dlg editor-pagina" aria-labelledby="editor-titulo">
 <form class="box" id="fl" aria-labelledby="editor-titulo"><h2 id="editor-titulo">Adicionar livro</h2><label for="t1">Título</label><input id="t1" required><label for="a1">Autor</label><input id="a1" required>
 <div class="pair"><div><label for="te">Tema</label><select id="te"></select></div><div><label for="an">Ano</label><input id="an" type="number" min="1000" max="2100"></div></div>
 <div class="pair"><div><label for="ed">Editora</label><input id="ed"></div><div><label for="lc">Onde fica (estante)</label><input id="lc"></div></div>
@@ -75,6 +75,7 @@ function abrirEditor(livro) {
     $(campo).value = livro?.[chave] ?? "";
   }
   editor.showModal();
+  $("#t1").focus();
 }
 
 const campos = {
