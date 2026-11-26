@@ -3,8 +3,8 @@
 // 2) Preencha os dados de contato do centro (aparecem em "O Centro" e "Contato").
 //    Deixe vazio o que não quiser exibir.
 const CONFIG = {
-  SUPABASE_URL: "https://SEU-PROJETO.supabase.co",
-  SUPABASE_ANON_KEY: "SUA-CHAVE-ANON",
+  SUPABASE_URL: "https://qhvjabxmvpvvxqpdyahs.supabase.co",
+  SUPABASE_ANON_KEY: "sb_publishable_-JzxQ_Frfz1PxifyWfJkVw_1OVf-uuZ",
   CENTRO: {
     endereco: "Taubaté-SP (endereço completo a confirmar com o centro)",
     horarios: "A confirmar com o centro",
