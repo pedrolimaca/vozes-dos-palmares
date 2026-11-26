@@ -8,11 +8,25 @@
 <body><div id="top"></div><main>
 <div class="wrap"><div class="page-title"><h1>Acervo</h1><p class="lead">Pesquise os livros da biblioteca por título, autor ou tema. Clique num livro para ver os detalhes.</p></div>
 <div class="filters"><input id="q" type="search" placeholder="Busque por título ou autor" aria-label="Buscar no acervo"><select id="t" aria-label="Tema"></select></div>
+<p id="acervo-msg" class="msg" role="status" hidden></p>
+<p id="acervo-acoes" hidden><button id="adicionar-livro" class="btn" type="button">Adicionar livro</button></p>
 <ul class="shelf" id="l"></ul></div>
 <dialog id="bk" class="bk-dlg" aria-label="Detalhes do livro"><div class="bk-in" id="bkc"></div></dialog>
+<dialog id="editor-livro" class="bk-dlg" aria-labelledby="editor-titulo">
+<form class="box" id="fl" aria-labelledby="editor-titulo"><h2 id="editor-titulo">Adicionar livro</h2><label for="t1">Título</label><input id="t1" required><label for="a1">Autor</label><input id="a1" required>
+<div class="pair"><div><label for="te">Tema</label><select id="te"></select></div><div><label for="an">Ano</label><input id="an" type="number" min="1000" max="2100"></div></div>
+<div class="pair"><div><label for="ed">Editora</label><input id="ed"></div><div><label for="lc">Onde fica (estante)</label><input id="lc"></div></div>
+<label for="cv">Capa (selecione uma imagem para trocar)</label><input id="cv" type="file" accept="image/*">
+<label for="d1">Descrição breve</label><textarea id="d1" rows="2"></textarea>
+<label for="d3">Sobre a obra</label><textarea id="d3" rows="3"></textarea>
+<label for="sa">Sobre o autor</label><textarea id="sa" rows="2"></textarea>
+<label class="chk"><input id="dp" type="checkbox" checked> Disponível para empréstimo</label>
+<p id="editor-msg" class="msg err" role="alert" hidden></p>
+<p><button class="btn" type="submit">Salvar livro</button> <button id="editor-cancelar" class="btn alt" type="button">Cancelar</button></p></form>
+</dialog>
 </main><div id="foot"></div>
 <script>
-(async()=>{await layout("acervo.html");
+(async()=>{const {staff}=await layout("acervo.html");
 $("#t").innerHTML='<option value="">Todos os temas</option>'+TEMAS.map(t=>`<option>${t}</option>`).join("");
 const {data,error}=await sb.from("livros").select("*").order("titulo");
 const L=data||[];
@@ -36,12 +50,98 @@ function abrir(id){const b=L.find(x=>String(x.id)===String(id));if(!b)return;
  ${b.detalhes?`<h3>Sobre a obra</h3><p>${esc(b.detalhes)}</p>`:""}
  ${b.sobre_autor?`<h3>Sobre o autor</h3><p>${esc(b.sobre_autor)}</p>`:""}
  ${b.localizacao?`<h3>Onde encontrar</h3><p>${esc(b.localizacao)}</p>`:""}
+ ${staff?'<p><button class="btn" id="editar-livro" type="button">Editar livro</button></p>':""}
  ${rel("Mais deste autor",mesmo)}${rel("Do mesmo tema",tema)}</div>`;
  $("#bkx").onclick=()=>dlg.close();
+ if(staff)$("#editar-livro").onclick=()=>abrirEditor(b);
  if(!dlg.open)dlg.showModal();dlg.scrollTop=0;history.replaceState(null,"","?livro="+encodeURIComponent(b.id));}
 $("#l").addEventListener("click",e=>{const x=e.target.closest(".book");if(x)abrir(x.dataset.id)});
 $("#bkc").addEventListener("click",e=>{const x=e.target.closest(".bk-rel button");if(x)abrir(x.dataset.id)});
 dlg.addEventListener("click",e=>{if(e.target===dlg)dlg.close()});
 dlg.addEventListener("close",()=>history.replaceState(null,"",location.pathname));
+const editor = $("#editor-livro");
+const form = $("#fl");
+let livroEmEdicao;
+
+function abrirEditor(livro) {
+  livroEmEdicao = livro;
+  form.reset();
+  $("#editor-msg").hidden = true;
+  $("#editor-titulo").textContent = livro ? "Editar livro" : "Adicionar livro";
+  $("#te").replaceChildren(...[...new Set([...TEMAS, livro?.tema || "Outro"])].map(tema => new Option(tema, tema)));
+  $("#te").value = livro?.tema || "Outro";
+  $("#dp").checked = livro?.disponivel !== false;
+  for (const [campo, chave] of Object.entries(campos)) {
+    $(campo).value = livro?.[chave] ?? "";
+  }
+  editor.showModal();
+}
+
+const campos = {
+  "#t1": "titulo", "#a1": "autor", "#an": "ano", "#ed": "editora",
+  "#lc": "localizacao", "#d1": "descricao", "#d3": "detalhes", "#sa": "sobre_autor"
+};
+
+if (staff && !error) {
+  $("#acervo-acoes").hidden = false;
+  $("#adicionar-livro").onclick = () => abrirEditor(null);
+  const salvar = form.querySelector('button[type="submit"]');
+  const cancelar = $("#editor-cancelar");
+  cancelar.onclick = () => editor.close();
+  editor.addEventListener("cancel", event => {
+    if (salvar.disabled) event.preventDefault();
+  });
+
+  form.onsubmit = async event => {
+    event.preventDefault();
+    if (salvar.disabled) return;
+    const aviso = $("#editor-msg");
+    aviso.hidden = true;
+    salvar.disabled = cancelar.disabled = true;
+    const bucket = sb.storage.from("fotos");
+    let capaNova;
+
+    try {
+      const livro = Object.fromEntries(Object.entries(campos).map(([campo, chave]) => [chave, $(campo).value.trim() || null]));
+      if (!livro.titulo || !livro.autor) throw new Error("Preencha o título e o autor.");
+      livro.ano = livro.ano === null ? null : Number(livro.ano);
+      livro.tema = $("#te").value;
+      livro.disponivel = $("#dp").checked;
+      const arquivo = $("#cv").files[0];
+      if (arquivo) {
+        if (arquivo.size > 5 * 1024 * 1024) throw new Error("A capa deve ter até 5 MB.");
+        const caminho = "capas/" + crypto.randomUUID() + "-" + arquivo.name.normalize("NFD").replace(/[^\w.-]/g, "_");
+        const envio = await bucket.upload(caminho, arquivo);
+        if (envio.error) throw envio.error;
+        capaNova = caminho;
+        livro.capa = bucket.getPublicUrl(caminho).data.publicUrl;
+      }
+
+      const tabela = sb.from("livros");
+      const operacao = livroEmEdicao ? tabela.update(livro).eq("id", livroEmEdicao.id) : tabela.insert(livro);
+      const resultado = await operacao.select().maybeSingle();
+      if (resultado.error || !resultado.data) {
+        if (capaNova && (!resultado.error || /^\w{5}$/.test(resultado.error.code))) await bucket.remove([capaNova]);
+        throw resultado.error || new Error("O livro não pôde ser salvo. Confira sua permissão.");
+      }
+
+      const salvo = resultado.data;
+      if (livroEmEdicao) L.splice(L.findIndex(item => item.id === salvo.id), 1, salvo);
+      else L.push(salvo);
+      L.sort((a, b) => a.titulo.localeCompare(b.titulo, "pt-BR"));
+      draw();
+      editor.close();
+      if (livroEmEdicao) abrir(salvo.id);
+      $("#acervo-msg").textContent = livroEmEdicao ? "Livro atualizado." : "Livro adicionado.";
+      $("#acervo-msg").hidden = false;
+    } catch (falha) {
+      aviso.textContent = "Erro ao salvar: " + falha.message;
+      aviso.hidden = false;
+    } finally {
+      salvar.disabled = cancelar.disabled = false;
+    }
+  };
+}
+
 const id=new URLSearchParams(location.search).get("livro");if(id)abrir(id);})();
 </script></body></html>
