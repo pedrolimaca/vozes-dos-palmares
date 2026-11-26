@@ -12,8 +12,20 @@
 <label for="msg">Mensagem</label><textarea id="msg" rows="6" required maxlength="3000"></textarea>
 <div class="hp" aria-hidden="true"><label for="site">Não preencha</label><input id="site" tabindex="-1" autocomplete="off"></div>
 <div id="m" class="msg" hidden role="status"></div><p><button class="btn" id="ok">Enviar mensagem</button></p></form>
-<div><h2>O centro</h2><dl class="info" id="info"></dl></div></div></div>
+<div><h2>O centro</h2><dl class="info" id="info"></dl>
+<div id="gestao-contato" hidden><p><button class="btn alt" id="editar-contato" type="button">Editar dados de contato</button></p><p class="msg" id="contato-status" role="status" hidden></p></div></div></div></div>
 <section class="wrap" id="caixa-mensagens" aria-labelledby="mensagens-titulo" hidden><h2 id="mensagens-titulo">Mensagens recebidas</h2><p class="msg" id="mensagens-aviso" role="status" hidden></p><div id="mensagens-lista"></div></section>
+<dialog class="bk-dlg editor-pagina" id="contato-editor" aria-labelledby="contato-titulo">
+<form class="box" id="contato-form"><h2 id="contato-titulo">Editar dados de contato</h2>
+<label for="centro-endereco">Endereço</label><input id="centro-endereco" name="endereco" type="text" maxlength="300">
+<label for="centro-horarios">Horários</label><input id="centro-horarios" name="horarios" type="text" maxlength="300">
+<label for="centro-email">E-mail público</label><input id="centro-email" name="email" type="email" maxlength="300">
+<label for="centro-telefone">Telefone</label><input id="centro-telefone" name="telefone" type="tel" maxlength="300">
+<label for="centro-whatsapp">WhatsApp</label><input id="centro-whatsapp" name="whatsapp" type="tel" maxlength="300">
+<label for="centro-mapa">Link do mapa</label><input id="centro-mapa" name="mapa" type="url" maxlength="2000">
+<p class="msg err" id="contato-erro" role="alert" hidden></p>
+<p class="editor-acoes"><button class="btn" type="submit">Salvar</button><button class="btn alt" type="button" id="contato-cancelar">Cancelar</button></p>
+</form></dialog>
 </main><div id="foot"></div>
 <script>
 (async()=>{const {admin}=await layout("contato.html");
@@ -38,7 +50,47 @@ if(admin){
  });
  carregarMensagens();
 }
-$("#info").innerHTML=infoCentro();
+let dadosCentro = await carregarDadosCentro();
+const mostrarCentro = () => {
+  $("#info").innerHTML = infoCentro(dadosCentro);
+};
+mostrarCentro();
+if(admin){
+ const dialogo=$("#contato-editor"), form=$("#contato-form"), erro=$("#contato-erro"), status=$("#contato-status");
+ const salvar=form.querySelector('[type="submit"]'), cancelar=$("#contato-cancelar");
+ const campos=[...form.querySelectorAll("input")];
+ $("#gestao-contato").hidden=false;
+ $("#editar-contato").onclick=()=>{
+  erro.hidden=true;
+  for(const campo of campos) campo.value=dadosCentro[campo.name]||"";
+  dialogo.showModal();
+  campos[0].focus();
+ };
+ cancelar.onclick=()=>dialogo.close();
+ dialogo.addEventListener("cancel",e=>{if(salvar.disabled)e.preventDefault();});
+ form.onsubmit=async e=>{
+  e.preventDefault();
+  if(salvar.disabled)return;
+  salvar.disabled=cancelar.disabled=true;
+  erro.hidden=true;
+  try{
+   const dados=Object.fromEntries(campos.map(campo=>[campo.name,campo.value.trim()]));
+   if(dados.mapa&&!/^https?:\/\//i.test(dados.mapa))throw new Error("O link do mapa precisa começar com https:// ou http://.");
+   const {data,error}=await sb.from("dados_centro").upsert({id:1,...dados}).select().single();
+   if(error)throw error;
+   dadosCentro=data;
+   mostrarCentro();
+   dialogo.close();
+   status.textContent="Dados de contato atualizados.";
+   status.hidden=false;
+  }catch(falha){
+   erro.textContent="Não foi possível salvar os dados de contato. "+falha.message;
+   erro.hidden=false;
+  }finally{
+   salvar.disabled=cancelar.disabled=false;
+  }
+ };
+}
 const say=(t,err)=>{const m=$("#m");m.hidden=false;m.textContent=t;m.className="msg"+(err?" err":"");};
 $("#f").onsubmit=async e=>{e.preventDefault();const b=$("#ok");b.disabled=true;
  const d={nome:$("#nome").value.trim(),email:$("#email").value.trim(),mensagem:$("#msg").value.trim()};

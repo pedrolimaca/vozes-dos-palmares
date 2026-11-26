@@ -18,7 +18,7 @@
 </main><div id="foot"></div>
 <script>
 (async()=>{const {user,staff}=await layout("centro.html");
-$("#info").innerHTML=infoCentro();
+carregarDadosCentro().then(dados=>{$("#info").innerHTML=infoCentro(dados);});
 (async()=>{const {data,error}=await sb.from("atividades").select("*").order("ordem"),el=$("#at");
  if(error){el.innerHTML=`<p class="msg err">Não foi possível carregar as atividades. (${esc(error.message)})</p>`;return}
  function draw(){const l=data.slice().sort((a,b)=>(a.ordem-b.ordem)||String(a.created_at).localeCompare(String(b.created_at)));

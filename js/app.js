@@ -116,10 +116,16 @@ const mesNome = k => { const [y, m] = k.split("-"), t = new Date(+y, +m - 1, 1).
 const mesesOpcoes = (datas, extra = "", asc = false) => { const ks = [...new Set(datas.map(mesChave))].sort(); if (!asc) ks.reverse(); return extra + ks.map(k => `<option value="${k}">${mesNome(k)}</option>`).join(""); };
 
 // Dados de contato do centro (js/config.js) em formato de lista, com links clicáveis
-function infoCentro() {
-  const C = CONFIG.CENTRO || {}, dig = n => String(n || "").replace(/\D/g, ""), br = n => { n = dig(n); return n.length <= 11 ? "55" + n : n; };
+async function carregarDadosCentro() {
+  const { data } = await sb.from("dados_centro").select("*").eq("id", 1).maybeSingle();
+  return data ?? CONFIG.CENTRO ?? {};
+}
+
+function infoCentro(C) {
+  const mapa = /^https?:\/\//i.test(C.mapa || "") ? C.mapa : "";
+  const dig = n => String(n || "").replace(/\D/g, ""), br = n => { n = dig(n); return n.length <= 11 ? "55" + n : n; };
   const row = (t, v) => v ? `<dt>${t}</dt><dd>${v}</dd>` : "";
-  return row("Endereço", C.endereco ? esc(C.endereco) + (C.mapa ? ` · <a href="${esc(C.mapa)}" target="_blank" rel="noopener">Ver no mapa</a>` : "") : "")
+  return row("Endereço", C.endereco ? esc(C.endereco) + (mapa ? ` · <a href="${esc(mapa)}" target="_blank" rel="noopener">Ver no mapa</a>` : "") : "")
     + row("Horários", esc(C.horarios))
     + row("Telefone", dig(C.telefone) ? `<a href="tel:+${br(C.telefone)}">${esc(C.telefone)}</a>` : "")
     + row("WhatsApp", dig(C.whatsapp) ? `<a href="https://wa.me/${br(C.whatsapp)}" target="_blank" rel="noopener">${esc(C.whatsapp)} · abrir conversa</a>` : "")
