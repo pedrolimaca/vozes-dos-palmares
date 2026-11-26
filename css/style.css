@@ -9,6 +9,7 @@ header{position:fixed;top:0;left:0;right:0;z-index:50;color:#fff;mix-blend-mode:
 nav{display:flex;flex-wrap:wrap;gap:.5rem 2rem;justify-content:space-between;align-items:center;padding:1.1rem 0}
 nav ul{display:flex;flex-wrap:wrap;gap:.2rem 1.5rem;list-style:none;margin:0;padding:0;font-size:.95rem}
 nav a,nav button.link{text-decoration:none;background:none;border:0;border-bottom:1px solid transparent;color:inherit;font:inherit;padding:.2rem 0;cursor:pointer}
+nav ul a,nav ul button.link{display:block}
 nav a:hover,nav a[aria-current],nav button.link:hover{border-color:currentColor}
 .brand{font-size:1.6rem;text-decoration:none;border:0!important}
 /* hero com rolagem: imagem cresce de uma máscara em arco até tela cheia */
