@@ -82,12 +82,21 @@ function scrollHero() {
   const hs = $(".hs"), fig = $(".hs-fig"), img = $(".hs-fig img"), txt = $(".hs-txt"), cue = $(".hs-cue");
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const FX = 0.273, TOP = 0.013, HW = 0.268, HH = .65; // rosto: centro x, topo da cabeça, largura da cabeça, altura (frações da imagem)
+  const celular = matchMedia("(max-width:48rem)");
   function tick() {
+    if (celular.matches) {
+      fig.style.clipPath = "";
+      if (img) {
+        for (const prop of ["width", "height", "transform-origin", "transform"]) img.style.removeProperty(prop);
+      }
+      txt.style.opacity = txt.style.transform = cue.style.opacity = "";
+      return;
+    }
     const W = innerWidth, H = innerHeight;
     const p = still ? 1 : Math.min(1, Math.max(0, -hs.getBoundingClientRect().top / (hs.offsetHeight - H)));
     const e = 1 - Math.pow(1 - p, 3), k = 1 - e;
     // no desktop o arco fica à direita, para não ficar atrás do título
-    const L = W > 700 ? .5 : .14, R = W > 700 ? .12 : .14, archW = W * (1 - L - R), cx = W * (L + (1 - L - R) / 2);
+    const L = .5, R = .12, archW = W * (1 - L - R), cx = W * (L + (1 - L - R) / 2);
     fig.style.clipPath = `inset(${k * .16 * H}px ${k * R * W}px ${k * .16 * H}px ${k * L * W}px round ${k * archW / 2}px ${k * archW / 2}px ${k * 24}px ${k * 24}px)`;
     if (img && img.naturalWidth) {
       // A imagem tem o tamanho "cover" completo e é movida por transform (origem no canto superior esquerdo).
@@ -95,7 +104,7 @@ function scrollHero() {
       const cover = Math.max(W / img.naturalWidth, H / img.naturalHeight), rw = img.naturalWidth * cover, rh = img.naturalHeight * cover;
       const archH = .68 * H, base = .84 * H;
       const s0 = Math.min(1, .96 * archH / rh, .72 * archW / (HW * rw));
-      const x0 = (W - rw) / 2 + (W > 700 ? 0 : Math.min(W / 2 - ((W - rw) / 2 + FX * rw), (rw - W) / 2)); // tela cheia (no celular, rosto visível)
+      const x0 = (W - rw) / 2; // tela cheia
       const x1 = cx - FX * rw * s0;                          // arco: busto centralizado (a borda esquerda da imagem é suavizada)
       const y1 = base - rh * s0;                             // arco: base da imagem na base do arco
       const s = 1 - k * (1 - s0);
